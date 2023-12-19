@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      args:
+        user: john_doe
+        uid: 1000
+      context: .
+      dockerfile: Dockerfile
+    image: my-laravel-app
+    container_name: laravel-app-container
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./laravel-project:/var/www
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel_db
+      MYSQL_ROOT_PASSWORD: secret_password
+      MYSQL_PASSWORD: secret_password
+      MYSQL_USER: laravel_user
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-container
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./laravel-project:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+
